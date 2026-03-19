@@ -5,6 +5,9 @@ import bodyParser from 'body-parser';
 import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 
 // OpenRouter API key
-const OPENROUTER_API_KEY = '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,';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 // OCR + Summarize route
 app.post('/extract-and-summarize', upload.single('image'), async (req, res) => {

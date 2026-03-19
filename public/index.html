@@ -4,28 +4,113 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <title>OPTICAL CHARACTER RECOGNITION (OCR)</title>
+  <title>OCR + Text Summarizer</title>
 </head>
 <body>
   <div class="container">
-    <h1>OCR + Summarizer</h1>
-
-    <div class="upload-section">
-      <input type="file" id="image" accept="image/*">
-      <img id="preview" src="" alt="Image Preview" style="display:none;">
+    <!-- Header -->
+    <div class="header">
+      <h1>📄 OCR + Text Summarizer</h1>
+      <p class="subtitle">Convert images to text and get AI-powered summaries instantly</p>
     </div>
 
-    <button id="extract-btn">Extract Text</button>
+    <!-- How It Works Section -->
+    <div class="how-it-works">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Upload Image</h3>
+            <p>Choose any image with text (documents, screenshots, photos)</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Extract Text</h3>
+            <p>Uses advanced OCR technology to read text from your image</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Get Summary</h3>
+            <p>AI analyzes the text and creates a concise summary</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <div class="results">
-      <h2>Extracted Text:</h2>
-      <pre id="ocr-text" class="ocr-text"></pre>
-      <button id="copy-text-btn">Copy Extracted Text</button>
+    <!-- Main Application -->
+    <div class="app-section">
+      <!-- Upload Section -->
+      <div class="upload-section">
+        <h2>Step 1: Upload Your Image</h2>
+        <div class="file-input-wrapper">
+          <label for="image" class="file-label">
+            <span class="upload-icon">📤</span>
+            <span>Click to select an image or drag & drop</span>
+          </label>
+          <input type="file" id="image" accept="image/*">
+        </div>
+        <img id="preview" src="" alt="Image Preview" class="preview-image">
+      </div>
 
-      <h2>Summary:</h2>
-      <pre id="summary-text" class="summary-text"></pre>
-      <button id="summarize-btn">Summarize</button>
-      <button id="copy-summary-btn">Copy Summary</button>
+      <!-- Extract Section -->
+      <div class="action-section">
+        <h2>Step 2: Extract Text from Image</h2>
+        <p class="section-desc">Click the button below to use OCR technology to read text from your uploaded image</p>
+        <button id="extract-btn" class="btn btn-primary">
+          <span class="btn-icon">🔍</span> Extract Text from Image
+        </button>
+      </div>
+
+      <!-- Results Section -->
+      <div class="results">
+        <!-- Extracted Text -->
+        <div class="result-box">
+          <div class="result-header">
+            <h3>📝 Extracted Text</h3>
+            <span class="result-status" id="extract-status"></span>
+          </div>
+          <pre id="ocr-text" class="text-box ocr-text"></pre>
+          <div class="button-group">
+            <button id="copy-text-btn" class="btn btn-secondary">
+              <span class="btn-icon">📋</span> Copy Text
+            </button>
+            <button id="clear-text-btn" class="btn btn-secondary">
+              <span class="btn-icon">🗑️</span> Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Summarize Section -->
+        <div class="result-box">
+          <div class="result-header">
+            <h3>✨ AI Summary</h3>
+            <span class="result-status" id="summary-status"></span>
+          </div>
+          <p class="section-desc">Extract text first, then click Summarize to get a concise AI-generated summary</p>
+          <pre id="summary-text" class="text-box summary-text"></pre>
+          <div class="button-group">
+            <button id="summarize-btn" class="btn btn-accent">
+              <span class="btn-icon">⚡</span> Summarize Text
+            </button>
+            <button id="copy-summary-btn" class="btn btn-secondary">
+              <span class="btn-icon">📋</span> Copy Summary
+            </button>
+            <button id="clear-summary-btn" class="btn btn-secondary">
+              <span class="btn-icon">🗑️</span> Clear
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>✓ Works offline for image upload • ✓ Secure processing • ✓ AI-powered summaries</p>
     </div>
   </div>
 
@@ -38,10 +123,15 @@
     const summaryText = document.getElementById('summary-text');
     const copyTextBtn = document.getElementById('copy-text-btn');
     const copySummaryBtn = document.getElementById('copy-summary-btn');
+    const clearTextBtn = document.getElementById('clear-text-btn');
+    const clearSummaryBtn = document.getElementById('clear-summary-btn');
+    const extractStatus = document.getElementById('extract-status');
+    const summaryStatus = document.getElementById('summary-status');
 
     let extractedText = '';
     let extractedSummary = '';
 
+    // File input change event
     imageInput.addEventListener('change', () => {
       const file = imageInput.files[0];
       if (!file) return;
@@ -51,20 +141,44 @@
         preview.style.display = 'block';
       }
       reader.readAsDataURL(file);
-
       ocrText.textContent = '';
       summaryText.textContent = '';
+      extractStatus.textContent = '';
+      summaryStatus.textContent = '';
     });
 
+    // Drag and drop support
+    const fileLabel = document.querySelector('.file-label');
+    fileLabel.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      fileLabel.classList.add('dragover');
+    });
+    fileLabel.addEventListener('dragleave', () => {
+      fileLabel.classList.remove('dragover');
+    });
+    fileLabel.addEventListener('drop', (e) => {
+      e.preventDefault();
+      fileLabel.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        imageInput.files = e.dataTransfer.files;
+        imageInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    // Extract text
     extractBtn.addEventListener('click', async () => {
       const file = imageInput.files[0];
-      if (!file) return alert('Upload an image first');
+      if (!file) return alert('Please upload an image first');
 
       const formData = new FormData();
       formData.append('image', file);
 
-      ocrText.textContent = 'Processing...';
+      extractBtn.disabled = true;
+      extractBtn.textContent = '⏳ Processing...';
+      ocrText.textContent = 'Analyzing image...';
+      extractStatus.textContent = '🔄 Processing';
       summaryText.textContent = '';
+      summaryStatus.textContent = '';
       extractedText = '';
       extractedSummary = '';
 
@@ -74,22 +188,60 @@
         extractedText = data.text;
         extractedSummary = data.summary;
         ocrText.textContent = extractedText;
+        extractStatus.textContent = '✅ Complete';
       } catch (err) {
-        ocrText.textContent = 'Error extracting text';
+        ocrText.textContent = 'Error extracting text. Please try again.';
+        extractStatus.textContent = '❌ Error';
         console.error(err);
+      } finally {
+        extractBtn.disabled = false;
+        extractBtn.innerHTML = '<span class="btn-icon">🔍</span> Extract Text from Image';
       }
     });
 
+    // Summarize text
     summarizeBtn.addEventListener('click', () => {
-      if (!extractedSummary) return alert('Extract text first');
+      if (!extractedSummary) return alert('Please extract text first');
       summaryText.textContent = extractedSummary;
+      summaryStatus.textContent = '✅ Complete';
     });
 
+    // Copy functions with feedback
     copyTextBtn.addEventListener('click', () => {
-      if (extractedText) navigator.clipboard.writeText(extractedText).then(() => alert('Copied!'));
+      if (extractedText) {
+        navigator.clipboard.writeText(extractedText).then(() => {
+          const originalText = copyTextBtn.innerHTML;
+          copyTextBtn.innerHTML = '<span class="btn-icon">✅</span> Copied!';
+          setTimeout(() => {
+            copyTextBtn.innerHTML = originalText;
+          }, 2000);
+        });
+      }
     });
+    
     copySummaryBtn.addEventListener('click', () => {
-      if (extractedSummary) navigator.clipboard.writeText(extractedSummary).then(() => alert('Copied!'));
+      if (extractedSummary) {
+        navigator.clipboard.writeText(extractedSummary).then(() => {
+          const originalText = copySummaryBtn.innerHTML;
+          copySummaryBtn.innerHTML = '<span class="btn-icon">✅</span> Copied!';
+          setTimeout(() => {
+            copySummaryBtn.innerHTML = originalText;
+          }, 2000);
+        });
+      }
+    });
+
+    // Clear functions
+    clearTextBtn.addEventListener('click', () => {
+      ocrText.textContent = '';
+      extractStatus.textContent = '';
+      extractedText = '';
+    });
+
+    clearSummaryBtn.addEventListener('click', () => {
+      summaryText.textContent = '';
+      summaryStatus.textContent = '';
+      extractedSummary = '';
     });
   </script>
 </body>
